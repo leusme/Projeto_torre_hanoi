@@ -16,38 +16,38 @@ section .data
 
 
 section .bss
-    quant_disc resb 1 ; Contagem de discos
-    entrada resb 3  ; Buffer para a entrada
-    len_buffer resb 2 ; Tamanho da string
+    quant_disc resb 1 ; Contagem de discos 1 byte -> 1-99
+    entrada resb 3  ; Buffer para a entrada 1/2 digitos/ newline
+    len_buffer resb 2 ; Tamanho da string -> maior 2 bytes
 
 section .text ;_start é o ponto inicial onde o sistema operacional começa a executar o programa.
     global _start
 
 _start:
-    start: ; Inicia a solicitação da entrada
-    mov ecx, pergunta
-    call printar_ecx_0 ; Exibe a pergunta
+    start: ; Inicia a solicitação da entrada (usado para retornar caso não passe nas validações)
+    mov ecx, pergunta 
+    call printar_ecx_0 ; Exibe a pergunta, função de print/write
     
     mov ecx, entrada 
-    call ler_entrada; Lê 2 bytes da entradas
+    call ler_entrada; Lê 2 bytes da entrada do usuário
     
-    call avaliar_entrada ; Valida a entrada
+    call avaliar_entrada ; função para validar a entrada
 
     mov ecx, start_msg
-    call printar_ecx_0 ; printar entrada  
+    call printar_ecx_0 ; printar mensagem de start -> "Algoritmo da torre de hanói... " 
 
     mov ecx, entrada
-    call printar_ecx_0 ; printar entrada    
+    call printar_ecx_0 ; printar entrada do usuário    
 
     mov ecx, discos_msg
-    call printar_ecx_0 ; printar entrada  
+    call printar_ecx_0 ; printar "discos"
 
     ; Adicionar uma quebra de linha após exibir tudo
     mov ecx, quebra_de_linha
     call printar_ecx               ; Exibe a quebra de linha
 
     call converter_string_int ; Converte a entrada para inteiro
-    mov [quant_disc], edx ; Armazena o valor
+    mov [quant_disc], edx ; Armazena o valor da quantidade de discos
 
     call torre_de_hanoi ; Chama a função da Torre de Hanoi
     
@@ -55,12 +55,12 @@ _start:
     call printar_ecx_0 ; Exibe "Concluído!"
     
     ; Finaliza o programa
-    mov eax, 1
-    xor ebx, ebx
-    int 0x80
+    mov eax, 1 ; 1 no eax -> valor para exit 
+    xor ebx, ebx ; -> zera o ebx -> ebx 0 -> valor para código de saída/concluído sem erros
+    int 0x80 ; -> instrução de interrupção com eax 1 e ebx 0 -> fim do programa
     
 torre_de_hanoi: ; Algoritmo da Torre de Hanoi
-    cmp byte [quant_disc], 1
+    cmp byte [quant_disc], 1  ; compara a quantidade de discos com 1
     je disco_unico ; Caso tenha 1 disco
     jmp mais_discos ; Caso tenha mais discos
     
@@ -87,14 +87,14 @@ torre_de_hanoi: ; Algoritmo da Torre de Hanoi
         jmp fim ; Finaliza
         
     mais_discos: ; Caso tenha mais discos
-        dec byte [quant_disc]
-        push word [quant_disc] ; Empilha valores
-        push word [torre_origem]
-        push word [torre_auxiliar]
-        push word [torre_destino]
+        dec byte [quant_disc] ; decrecimento na quantidade de discos
+        push word [quant_disc] ; coloca o valor da quantidade atual de discos na pilha
+        push word [torre_origem] ; coloca o valor da torre origem na pilha
+        push word [torre_auxiliar] ; coloca o valor da torre auxiliar na pilha
+        push word [torre_destino] ; coloca o valor da torre destino na pilha
         
         ; Troca as Torres de origem e destino
-        mov dx, [torre_auxiliar]
+        mov dx, [torre_auxiliar] 
         mov cx, [torre_destino]
         mov [torre_destino], dx
         mov [torre_auxiliar], cx
@@ -102,16 +102,17 @@ torre_de_hanoi: ; Algoritmo da Torre de Hanoi
         call torre_de_hanoi ; Recursão
         
         ; Restaura as Torres e imprime movimento
-        pop word [torre_destino]
-        pop word [torre_auxiliar]
-        pop word [torre_origem]
-        pop word [quant_disc]
+        pop word [torre_destino] ; organiza o valor da torre destino
+        pop word [torre_auxiliar] ; organiza o valor da torre auxiliar
+        pop word [torre_origem] ; organiza o valor da torre origem
+        pop word [quant_disc] ; modifica a pilha para 
         
         mov ecx, movimento1
         call printar_ecx_0
-        inc byte [quant_disc] ; Aumenta para exibir o disco correto
+
+        inc byte [quant_disc] ; Aumenta para exibir o disco correto sem influência do decréssimo anterior
         call printar_n_discos
-        dec byte [quant_disc] ; Restaura valor original
+        dec byte [quant_disc] ; Restaura valor original 
         
         mov ecx, movimento3
         call printar_ecx_0
@@ -135,49 +136,49 @@ torre_de_hanoi: ; Algoritmo da Torre de Hanoi
         ret
 
 converter_string_int: ; Converte string para inteiro
-    mov edx, entrada[0] 
-    sub edx, '0' 
-    mov eax, entrada[1]
+    mov edx, entrada[0] ;primeiro digito
+    sub edx, '0'  ; subtrair do valor de 0 em ascii
+    mov eax, entrada[1] ;segundo digito
     
-    cmp eax, 0x0a
+    cmp eax, 0x0a ; ver se é nulo
     je um_num
-    sub eax, '0'
-    imul edx, 10
-    add edx, eax
+    sub eax, '0' ; transformar em inteiro -> número
+    imul edx, 10 ; multiplicar dezena por 10
+    add edx, eax ;somar dezena e unidade
     
     um_num:
     ret
 
 printar_ecx: ; Imprime a string
-    mov eax, 4
-    mov ebx, 1
-    mov edx, 1
-    int 0x80
+    mov eax, 4 ;chamada p imprimir
+    mov ebx, 1 ;desc
+    mov edx, 1 ;tamanho
+    int 0x80 ;interromper sistema
     ret
 
 printar_ecx_0: ; Imprime string até 0
     printar_loop:
-        mov al, ecx[0]
-        cmp al, 0
-        je printar_exit
+        mov al, ecx[0] ;carregar caracter
+        cmp al, 0 ; verificar se é o final da string
+        je printar_exit ; se sim, termina a func
         call printar_ecx
-        inc ecx
-        jmp printar_loop
-    printar_exit:
+        inc ecx ; mover p prox caracter
+        jmp printar_loop ; repetir loop
+    printar_exit: ;sair do loop
         ret
         
 ler_entrada: ; Lê entrada do usuário
-    mov eax, 3
-    mov ebx, 0
-    mov edx, 2
-    int 0x80
+    mov eax, 3 ; leitura do sist
+    mov ebx, 0 ; descrever tipo do arquivo -> entrada padrao(0)
+    mov edx, 2 ; tamanho max entrada
+    int 0x80 ; finalizar
     ret
     
 avaliar_entrada: ; Verifica se a entrada é válida
-    mov cl, entrada[2]
+    mov cl, entrada[2] ; analisar 3 dígito
     cmp cl, 0x0a   ;ver se é newline, vazio
-    jle quantidade_caracteres_valida
-    jmp invalido
+    jle quantidade_caracteres_valida ; se sim
+    jmp invalido ; se não -> invalido
     
     quantidade_caracteres_valida:
     mov al, entrada[0] 
@@ -186,7 +187,7 @@ avaliar_entrada: ; Verifica se a entrada é válida
     cmp al, 0x39 ; comparar com 9 para ver se é maior que 39 (maior que 9)
     jg invalido
     
-    mov dl, entrada[1]
+    mov dl, entrada[1] ; analisar 2 dígito
     cmp dl, 0x0a ; ver se é newline
     je validar
     
@@ -199,33 +200,34 @@ avaliar_entrada: ; Verifica se a entrada é válida
     jmp valido
     
     invalido:
-        mov ecx, entrada_invalida
-        call printar_ecx_0
+        mov ecx, entrada_invalida 
+        call printar_ecx_0  ;mostrar erro entrada invalida
         mov ecx, quebra_de_linha
-        call printar_ecx
+        call printar_ecx ; quebra linha 
         jmp start
         
     valido:
         ret
 
-converter_int_string: ; Converte inteiro para string
-    dec edi ; Decrementa o conteúdo do registrador EDI
-    xor edx, edx ; zerando o registrador EDX
-    mov ecx, 10 ;  Move o valor 10 para ecx
+converter_int_string: ; Converte inteiro para string (ASCII)
+    dec edi ; Reduz o valor no registrador EDI em 1, movendo o "ponteiro" para o próximo espaço no buffer de memória onde será armazenado o próximo caractere.
+    xor edx, edx ; zerando o registrador EDX -> evitar restos indesejáveis
+    mov ecx, 10 ;  Define o divisor como 10 para dividir o número decimal e extrair os dígitos (em base 10)
     div ecx ; divide edx e eax por 10. O quociente é armazenado em EAX, e o resto em EDX.
-    add dl, '0' ; converte o dígito numérico para ASCII
+    add dl, '0' ; Converte o número do resto (DL) para o correspondente caractere ASCII.
     mov [edi], dl ; Armazena o caractere convertido no endereço de memória apontado por EDI
-    test eax, eax ; Testa se o valor em EAX (quociente da divisão) é zero
-    jnz converter_int_string ; Se não for zero, pula para a próxima iteração
+    test eax, eax ; Testa se o valor em EAX (quociente da divisão) é zero -> se for não precisa fazer novamente
+    jnz converter_int_string ; Se não for zero, pula para a próxima iteração -> refaz p próx digito
     ret ; Retorno
+
 printar_n_discos: ; Exibe a quantidade de discos
     movzx eax, byte [quant_disc] ; Move o valor da variável quant_disc para o registrador eax
-    lea edi, [len_buffer + 2] ; Carrega o endereço de memória apontado por EDI, usando um offset de 2
+    lea edi, [len_buffer + 2] ; Carrega em EDI o endereço onde a string convertida será armazenada, ajustando com um deslocamento de 2
     call converter_int_string
-    mov eax, 4 ; Número da chamada de sistema para imprimir
-    mov ebx, 1 ; Descritor de arquivo (stdout)
+    mov eax, 4 ; Número da chamada de sistema para write.
+    mov ebx, 1 ; Descritor de arquivo (stdout, saída padrão (1))
     lea ecx, [edi] ; ECX aponta para o endereço de memória apontado por EDI (Carrega o endereço da string convertida em ECX) 
-    lea edx, [len_buffer + 2] ; Carrega o endereço de um buffer no registrador EDX
-    sub edx, ecx ; Calcula o comprimento da string subtraindo os endereços
+    lea edx, [len_buffer + 2] ; Carrega o endereço de um buffer no registrador EDX -> LEA(Apenas calcula o endereço de memória e carrega o endereço resultante no registrador.) MOV(Acessa a memória e carrega o conteúdo de um endereço no registrador.)
+    sub edx, ecx ; Calcula o comprimento da string subtraindo os endereços -> A operação edx - ecx calcula o comprimento da string, pois a diferença entre o início e o final indica quantos bytes estão ocupados pela string no buffer.
     int 0x80 ; Chamar interrupção do sistema
     ret
