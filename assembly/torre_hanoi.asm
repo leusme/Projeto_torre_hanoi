@@ -99,17 +99,21 @@ torre_de_hanoi: ; Algoritmo da Torre de Hanoi
         mov [torre_destino], dx
         mov [torre_auxiliar], cx
 
+        ;Essa reorganização é fundamental porque, no subproblema recursivo, os n-1 discos precisam ser movidos da origem para a auxiliar antes de resolver o caso do maior disco.
+
         ;Mover n-1 discos da torre origem para a torre auxiliar.
         ;Mover o disco maior da torre origem para a torre destino.
         ;Mover os n-1 discos da torre auxiliar para a torre destino.
         
-        call torre_de_hanoi ; Recursão
+        call torre_de_hanoi ; Recursão -> numero de discos ja reduzido
         
         ; Restaura as Torres e imprime movimento
         pop word [torre_destino] ; organiza o valor da torre destino
         pop word [torre_auxiliar] ; organiza o valor da torre auxiliar
         pop word [torre_origem] ; organiza o valor da torre origem
         pop word [quant_disc] ; modifica a pilha para 
+
+        ;Isso permite que a função continue com os movimentos do disco maior e a segunda chamada recursiva (mover os n-1 discos da auxiliar para a destino) sem interferir nos valores que estavam na pilha.
         
         mov ecx, movimento1
         call printar_ecx_0
