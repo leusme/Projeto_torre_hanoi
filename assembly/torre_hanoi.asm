@@ -2,7 +2,7 @@ section .data
     pergunta db 'Digite a quantidade de discos desejada: ', 0
     start_msg db "Algoritmo da Torre de Hanoi com ", 0
     start_msg_len equ $ - start_msg
-    discos_msg db " discos", 0     ; Aqui está a string " discos"
+    discos_msg db "discos ", 0     ; Aqui está a string " discos"
     discos_msg_len equ $ - discos_msg
     quebra_de_linha db 10 ; Quebra de linha
     movimento1 db 'Mova o disco ', 0
@@ -28,36 +28,19 @@ _start:
     mov ecx, pergunta
     call printar_ecx_0 ; Exibe a pergunta
     
-    mov ecx, entrada
+    mov ecx, entrada 
     call ler_entrada; Lê 2 bytes da entradas
     
     call avaliar_entrada ; Valida a entrada
 
-    
-    
-    ; Exibir a frase inicial "Algoritmo da Torre de Hanoi com "
-    mov rax, 1                     ; syscall: write
-    mov rdi, 1                     ; saída padrão
-    mov rsi, start_msg             ; mensagem inicial
-    mov rdx, start_msg_len         ; comprimento da mensagem
-    syscall
+    mov ecx, start_msg
+    call printar_ecx_0 ; printar entrada  
 
+    mov ecx, entrada
+    call printar_ecx_0 ; printar entrada    
 
-    ;exibir qtd discos
-        mov rax, 1         ;write
-        mov rdi, 1         ;saida padrao
-        mov rsi, entrada   ;valor salvo de entrada do usuário
-        mov rdx, 1         ;comprimento
-        syscall
-        jmp proxm       
-
-    proxm:
-    ; Exibir " discos"
-    mov rax, 1                     ; syscall: write
-    mov rdi, 1                     ; saída padrão
-    mov rsi, discos_msg            ; endereço da string " discos"
-    mov rdx, discos_msg_len        ; comprimento da string " discos"
-    syscall
+    mov ecx, discos_msg
+    call printar_ecx_0 ; printar entrada  
 
     ; Adicionar uma quebra de linha após exibir tudo
     mov ecx, quebra_de_linha
