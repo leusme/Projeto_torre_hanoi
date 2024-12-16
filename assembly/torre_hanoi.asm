@@ -7,7 +7,7 @@ section .data
     quebra_de_linha db 10 ; Quebra de linha
     movimento1 db 'Mova o disco ', 0
     movimento3 db ' da Torre ', 0
-    movimento2 db ' até a Torre ', 0
+    movimento2 db ' para a Torre ', 0
     concluido db 'Concluído! ', 0
     entrada_invalida db 'Digite entrada entre 1-99 ', 0
     torre_origem db 'A', 0
