@@ -98,6 +98,10 @@ torre_de_hanoi: ; Algoritmo da Torre de Hanoi
         mov cx, [torre_destino]
         mov [torre_destino], dx
         mov [torre_auxiliar], cx
+
+        ;Mover n-1 discos da torre origem para a torre auxiliar.
+        ;Mover o disco maior da torre origem para a torre destino.
+        ;Mover os n-1 discos da torre auxiliar para a torre destino.
         
         call torre_de_hanoi ; Recursão
         
